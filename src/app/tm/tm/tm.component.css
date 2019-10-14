@@ -1,0 +1,10 @@
+:host{
+    display: flex;
+}
+section.settings{
+    width: 400px;
+}
+
+section.editor{
+    flex: 1;
+}

@@ -1,0 +1,7 @@
+<section class="settings">
+  <h2>Configurações</h2>
+</section>
+<section class="editor">
+  <ckeditor [editor]='editorBuild' [config]='editorConfig' (ready)="onReady($event)" [(ngModel)]="editorData">
+  </ckeditor>
+</section>
