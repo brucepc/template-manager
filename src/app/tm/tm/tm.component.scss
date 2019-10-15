@@ -20,13 +20,37 @@
             flex: 1;
             background-color: lightgray;
 
-            ckeditor {
-                height: 100%;
+            ckeditor.custom-editor {
+                display: flex;
+                position: relative;
+                flex-direction: column;
+                align-items: center;
+                max-height: 100%;
+                overflow: auto;
+
+                .ck.ck-toolbar {
+                    position: absolute;
+                    top: 0;
+                    width: 100%;
+                }
 
                 .ck.ck-content {
-                    background-color: white;
-                    margin: 50px;
-                    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+
+                    &.ck-editor__editable,
+                    &.ck-blurred,
+                    &.ck-focused {
+                        background-color: white;
+                        margin: 50px;
+                        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+                        border: none;
+
+                        &.A4 {
+                            min-height: 297mm;
+                            max-height: 297mm;
+                            min-width: 210mm;
+                            max-width: 210mm;
+                        }
+                    }
                 }
             }
         }
