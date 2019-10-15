@@ -4,7 +4,7 @@ import * as DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document';
 @Component({
   selector: 'blockchain-tm',
   templateUrl: './tm.component.html',
-  styleUrls: ['./tm.component.css']
+  styleUrls: ['./tm.component.scss']
 })
 export class TmComponent implements OnInit {
   editorBuild = DecoupledEditor;
