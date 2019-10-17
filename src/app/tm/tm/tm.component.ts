@@ -14,7 +14,6 @@ export class TmComponent implements OnInit, AfterViewInit {
   };
   editorData = 'Testandoooooooooooo';
 
-  @ViewChild('.ck.ck-content', { static: false }) contentRef: ElementRef;
   @ViewChild(CKEditorComponent, { static: false }) ckComponentRef: CKEditorComponent;
 
   constructor(
@@ -25,23 +24,20 @@ export class TmComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    console.log(this.contentRef);
     this.ckComponentRef.ready.subscribe((editor: CKEditor5.Editor) => {
-      console.log(editor);
-      let elementRef = new ElementRef(editor.sourceElement);
-      console.log(editor.sourceElement);
-      this.render.setStyle(elementRef.nativeElement, 'min-height', '297mm');
-      this.render.setStyle(elementRef.nativeElement, 'min-width', '210mm');
+      this.render.setStyle(editor.sourceElement, 'height', '297mm');
+      this.render.setStyle(editor.sourceElement, 'width', '210mm');
     });
+
+    console.log(this.ckComponentRef.tagName);
 
     this.ckComponentRef.focus.subscribe((data: { event: any, editor: CKEditor5.Editor }) => this.setUpPage(data.editor));
     this.ckComponentRef.blur.subscribe((data: { event: any, editor: CKEditor5.Editor }) => this.setUpPage(data.editor));
   }
 
   private setUpPage(editor: CKEditor5.Editor) {
-    let elementRef = new ElementRef(editor.sourceElement);
-    this.render.setStyle(elementRef.nativeElement, 'min-height', '297mm');
-    this.render.setStyle(elementRef.nativeElement, 'min-width', '210mm');
+    this.render.setStyle(editor.sourceElement, 'height', '297mm');
+    this.render.setStyle(editor.sourceElement, 'width', '210mm');
   }
 
   public onReady(editor) {

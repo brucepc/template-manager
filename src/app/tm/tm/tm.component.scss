@@ -8,7 +8,7 @@
     }
 
 
-    section {
+    &>section {
         display: block;
         height: 100vh;
 
@@ -18,37 +18,38 @@
 
         &.editor {
             flex: 1;
+            display: block;
+            position: relative;
             background-color: lightgray;
+            height: 100%;
 
-            ckeditor.custom-editor {
-                display: flex;
-                position: relative;
-                flex-direction: column;
-                align-items: center;
-                max-height: 100%;
+            &>ckeditor.custom-editor {
+                --topbar-height: 40px;
+                display: block;
+                margin-top: var(--topbar-height);
+                max-height: calc(100% - var(--topbar-height));
                 overflow: auto;
 
-                .ck.ck-toolbar {
+                &>.ck.ck-toolbar[role='toolbar'] {
                     position: absolute;
-                    top: 0;
+                    top: 0px;
+                    left: 0;
                     width: 100%;
                 }
 
-                .ck.ck-content {
+                &>.ck.ck-content {
 
-                    &.ck-editor__editable,
-                    &.ck-blurred,
-                    &.ck-focused {
-                        background-color: white;
-                        margin: 50px;
-                        box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
-                        border: none;
+                    &.ck-editor__editable {
 
-                        &.A4 {
-                            min-height: 297mm;
-                            max-height: 297mm;
-                            min-width: 210mm;
-                            max-width: 210mm;
+                        &.ck-blurred,
+                        &.ck-focused {
+                            background-color: white;
+                            margin: 50px;
+                            box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+                            border: none;
+
+                            // height: 297mm;
+                            // width: 210mm;
                         }
                     }
                 }
