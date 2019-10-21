@@ -1,7 +1,25 @@
 <section class="settings">
   <h2>Configurações</h2>
+  <form [formGroup]='gapConfigForm' (ngSubmit)="onAddGapConfig(gapConfigForm.value)">
+    <div>
+      <label>Name</label>
+      <input type="text" name="name" formControlName="name" />
+    </div>
+    <div>
+      <label>Tamanho</label>
+      <input type="number" name="maxChar" formControlName="maxChar" />
+    </div>
+    <div>
+      <label>Sublinhado</label>
+      <input name="underline" type="checkbox" formControlName="underline" />
+    </div>
+    <div>
+      <button type="submit">Adicionar</button>
+    </div>
+  </form>
 </section>
 <section class="editor">
-  <ckeditor class="custom-editor" [editor]='editorBuild' [config]='editorConfig' (ready)="onReady($event)" [(ngModel)]="editorData">
+  <ckeditor class="custom-editor" [editor]='editorBuild' [config]='editorConfig' (ready)="onReady($event)"
+    [(ngModel)]="editorData">
   </ckeditor>
 </section>

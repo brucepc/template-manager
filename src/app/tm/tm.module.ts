@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TmComponent } from './tm/tm.component';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { GapModule } from '../gap/gap.module';
 
 
 
@@ -13,7 +14,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    CKEditorModule
+    CKEditorModule,
+    GapModule
   ]
 })
 export class TmModule { }

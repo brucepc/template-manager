@@ -1,6 +1,9 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Renderer2 } from '@angular/core';
-import * as DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CKEditorComponent, CKEditor5 } from '@ckeditor/ckeditor5-angular';
+import DecoupledEditor from 'src/assets/editor/ckeditor';
+import { FormGroup, FormBuilder } from '@angular/forms';
+import { GapService } from 'src/app/gap/gap.service';
+import { GapConfig } from 'src/app/gap/gap-config';
 
 @Component({
   selector: 'blockchain-tm',
@@ -13,20 +16,21 @@ export class TmComponent implements OnInit, AfterViewInit {
     language: 'pt-br'
   };
   editorData = 'Testandoooooooooooo';
-
-  @ViewChild(CKEditorComponent, { static: false }) ckComponentRef: CKEditorComponent;
+  gapConfigForm: FormGroup;
+  @ViewChild(CKEditorComponent, { static: false })
+  ckComponentRef: CKEditorComponent;
 
   constructor(
-    private render: Renderer2
+    private fb: FormBuilder,
+    private gapService: GapService
   ) { }
 
   ngOnInit() {
+    this.createGapConfigForm();
   }
 
   ngAfterViewInit() {
     this.ckComponentRef.ready.subscribe((editor: CKEditor5.Editor) => {
-      this.render.setStyle(editor.sourceElement, 'height', '297mm');
-      this.render.setStyle(editor.sourceElement, 'width', '210mm');
     });
 
     console.log(this.ckComponentRef.tagName);
@@ -36,11 +40,37 @@ export class TmComponent implements OnInit, AfterViewInit {
   }
 
   private setUpPage(editor: CKEditor5.Editor) {
-    this.render.setStyle(editor.sourceElement, 'height', '297mm');
-    this.render.setStyle(editor.sourceElement, 'width', '210mm');
+    // TODO Create programatically page setup
   }
 
-  public onReady(editor) {
+  private createGapConfigForm() {
+    this.gapConfigForm = this.fb.group({
+      name: this.fb.control(''),
+      maxChar: this.fb.control(''),
+      underline: this.fb.control(true)
+    });
+  }
+
+  onAddGapConfig(gapConfigData: any) {
+    console.warn("Gap Config", gapConfigData);
+    this.gapService.create(gapConfigData as GapConfig);
+    const gapDOM = this.gapService.getDOM();
+    const ckeditor = this.ckComponentRef.editorInstance;
+    const viewFragment = ckeditor.data.processor.toView(gapDOM);
+    const modelFragment = ckeditor.data.toModel(viewFragment);
+    ckeditor.model.insertContent(modelFragment);
+
+    // this.ckComponentRef.editorInstance.model.change(writer => {
+    //   const position = ckeditor.model.document.selection.getFirstPosition();
+    //   console.warn('Selection OBject', position);
+    //   console.log(gapDOM);
+
+    //   writer.insertContent(gapDOM, position);
+    // });
+    this.gapConfigForm.reset();
+  }
+
+  onReady(editor) {
     editor.ui.getEditableElement().parentElement.insertBefore(
       editor.ui.view.toolbar.element,
       editor.ui.getEditableElement()
