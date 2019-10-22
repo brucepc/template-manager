@@ -4,7 +4,7 @@ import { TmComponent } from './tm/tm.component';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GapModule } from '../gap/gap.module';
-
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 @NgModule({
@@ -15,7 +15,8 @@ import { GapModule } from '../gap/gap.module';
     ReactiveFormsModule,
     FormsModule,
     CKEditorModule,
-    GapModule
+    GapModule,
+    NgSelectModule,
   ]
 })
 export class TmModule { }

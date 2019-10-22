@@ -1,5 +1,9 @@
+$pageWidth: var(--page-width);
+$pageHeight: var(--page-height);
+
 :host ::ng-deep {
     display: flex;
+
 
     &,
     * {
@@ -47,9 +51,8 @@
                             margin: 50px;
                             box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
                             border: none;
-
-                            height: 297mm;
-                            width: 210mm;
+                            height: $pageHeight;
+                            width: $pageHeight;
                         }
                     }
                 }

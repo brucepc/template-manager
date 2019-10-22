@@ -17,6 +17,8 @@
       <button type="submit">Adicionar</button>
     </div>
   </form>
+  <ng-select [items]='papers' (change)='onPageChange($event)'>
+  </ng-select>
 </section>
 <section class="editor">
   <ckeditor class="custom-editor" [editor]='editorBuild' [config]='editorConfig' (ready)="onReady($event)"

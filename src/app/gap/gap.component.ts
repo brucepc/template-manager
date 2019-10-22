@@ -1,7 +1,7 @@
 import { Component, AfterContentInit, OnDestroy, ElementRef, Renderer2, Input } from '@angular/core';
 
 @Component({
-  selector: 'tm-gap',
+  selector: 'tmgap',
   template: '',
   styleUrls: ['./gap.component.scss']
 })
