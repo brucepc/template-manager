@@ -1,27 +1,45 @@
-<section class="settings">
-  <h2>Configurações</h2>
-  <form [formGroup]='gapConfigForm' (ngSubmit)="onAddGapConfig(gapConfigForm.value)">
-    <div>
-      <label>Name</label>
-      <input type="text" name="name" formControlName="name" />
+<div class="container">
+  <section class="settings">
+    <h2>Documento</h2>
+    <section>
+      <h3>Configurações da pagina</h3>
+      <form [formGroup]="documentForm">
+        <mat-form-field>
+          <mat-label>Tamanho da pagina</mat-label>
+          <mat-select formControlName="pageType" (selectionChange)="onPageChange($event)" required>
+            <mat-option *ngFor="let paper of papers" [value]="paper.label">
+              {{paper.label}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <h5>Tamanho personalizado</h5>
+        <div class="pageSize">
+          <mat-form-field>
+            <mat-label>Largura</mat-label>
+            <input matInput formControlName="pageWidth">
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Altura</mat-label>
+            <input matInput formControlName="pageHeight">
+          </mat-form-field>
+        </div>
+        <mat-radio-group formControlName='orientation' (change)='onOrientationChange($event)'>
+          <mat-radio-button value='landscape'>Paisagem</mat-radio-button>
+          <mat-radio-button value='portrait'>Retrato</mat-radio-button>
+        </mat-radio-group>
+        <h5>Plano de fundo</h5>
+        <input id='page-background' formControlName="background" (change)='onChangeBg($event)' type="file">
+      </form>
+    </section>
+  </section>
+  <section class="editor">
+    <div #toolbar class="toolbar"></div>
+    <div class="editor-container">
+      <div class="editor-background">
+        <ckeditor class="custom-editor" name='document' [editor]='editorBuild' [config]='editorConfig'
+          (ready)="onReady($event)">
+        </ckeditor>
+      </div>
     </div>
-    <div>
-      <label>Tamanho</label>
-      <input type="number" name="maxChar" formControlName="maxChar" />
-    </div>
-    <div>
-      <label>Sublinhado</label>
-      <input name="underline" type="checkbox" formControlName="underline" />
-    </div>
-    <div>
-      <button type="submit">Adicionar</button>
-    </div>
-  </form>
-  <ng-select [items]='papers' (change)='onPageChange($event)'>
-  </ng-select>
-</section>
-<section class="editor">
-  <ckeditor class="custom-editor" [editor]='editorBuild' [config]='editorConfig' (ready)="onReady($event)"
-    [(ngModel)]="editorData">
-  </ckeditor>
-</section>
+  </section>
+</div>

@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { TmModule } from './tm/tm.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -10,7 +11,8 @@ import { TmModule } from './tm/tm.module';
   ],
   imports: [
     BrowserModule,
-    TmModule
+    TmModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

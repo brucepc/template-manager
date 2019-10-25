@@ -1,58 +1,118 @@
 $pageWidth: var(--page-width);
 $pageHeight: var(--page-height);
+$stageWidth: var(--stage-width);
+$stageHeight: var(--stage-height);
+$backgroundURI: var(--page-background-uri);
 
 :host ::ng-deep {
-    display: flex;
+    --tool-bar-height: 40px;
+    --settings-width: 400px;
+    --settings-margin: 6px;
 
 
-    &,
-    * {
-        margin: 0;
-        padding: 0;
-    }
+    &>.container {
+        display: flex;
+        box-sizing: border-box;
+        height: 100%;
+        max-width: fill-available;
 
-
-    &>section {
-        display: block;
-        height: 100vh;
-
-        &.settings {
-            width: 400px;
-        }
-
-        &.editor {
-            flex: 1;
+        &>section {
             display: block;
-            position: relative;
-            background-color: lightgray;
-            height: 100%;
+            box-sizing: border-box;
 
-            &>ckeditor.custom-editor {
-                --topbar-height: 40px;
-                display: block;
-                margin-top: var(--topbar-height);
-                max-height: calc(100% - var(--topbar-height));
-                overflow: auto;
+            &.settings {
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+                width: var(--settings-width);
+                padding: 0 8px;
 
-                &>.ck.ck-toolbar[role='toolbar'] {
-                    position: absolute;
-                    top: 0px;
-                    left: 0;
-                    width: 100%;
+                form,
+                h2 {
+                    display: inline-block;
+                    width: calc(100% - var(--settings-margin));
                 }
 
-                &>.ck.ck-content {
+                form {
 
-                    &.ck-editor__editable {
+                    mat-form-field,
+                    mat-slide-toggle,
+                    mat-radio-group {
+                        width: 100%;
+                    }
 
-                        &.ck-blurred,
-                        &.ck-focused {
-                            background-color: white;
-                            margin: 50px;
-                            box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
-                            border: none;
+
+                    mat-radio-group,
+                    .pageSize {
+                        display: flex;
+                        justify-content: space-between;
+
+                        .mat-form-field::not(:first-child) {
+                            // margin-left: 6px;
+                            width: calc(50% - 8px);
+                        }
+                    }
+                }
+
+                @media print {
+                    display: none;
+                }
+            }
+
+            &.editor {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                max-width: calc(100% - var(--settings-width));
+                max-height: stretch;
+
+                .toolbar {
+                    height: max-content;
+
+                    @media print {
+                        display: none;
+                    }
+                }
+
+                .editor-container {
+                    display: block;
+
+                    @media screen {
+                        border-left: 1px solid lightgray;
+                        border-right: 1px solid lightgray;
+                        border-bottom: 1px solid lightgray;
+                        max-height: stretch;
+                        overflow: auto;
+                        background-color: lightgray;
+                        padding: 20px;
+                    }
+
+                    .editor-background {
+
+
+
+                        @media print {
+                            width: $pageWidth;
                             height: $pageHeight;
-                            width: $pageHeight;
+                        }
+
+
+                        &>ckeditor.custom-editor {
+                            display: block;
+                            box-shadow: 0px 0px 6px 2px rgba(0, 0, 0, 0.3);
+                            background-color: white;
+                            border: none;
+                            box-sizing: border-box;
+                            height: calc(#{$pageHeight} + 0px);
+                            width: calc(#{$pageWidth} + 0px);
+                            background-image: $backgroundURI;
+                            background-size: 100%;
+
+                            &>.ck.ck-content {
+                                border: none;
+                                height: 100%;
+                                overflow: hidden;
+                            }
                         }
                     }
                 }

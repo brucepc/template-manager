@@ -1,106 +1,135 @@
-import { Component, OnInit, ViewChild, AfterViewInit, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
-import { CKEditorComponent, CKEditor5 } from '@ckeditor/ckeditor5-angular';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+  ElementRef,
+  Renderer2,
+  Input
+} from '@angular/core';
+import {
+  CKEditorComponent,
+  CKEditor5
+} from '@ckeditor/ckeditor5-angular';
 import DecoupledEditor from 'src/assets/editor/ckeditor';
-import { FormGroup, FormBuilder } from '@angular/forms';
-import { GapService } from 'src/app/gap/gap.service';
-import { GapConfig } from 'src/app/gap/gap-config';
-import { GapComponent } from 'src/app/gap/gap.component';
+import {
+  FormGroup,
+  FormBuilder
+} from '@angular/forms';
+import { DomSanitizer } from '@angular/platform-browser';
+
+export enum TmViewMode {
+  Print = 'p',
+  Editor = 'e'
+};
 
 @Component({
   selector: 'blockchain-tm',
   templateUrl: './tm.component.html',
-  styleUrls: ['./tm.component.scss'],
-  entryComponents: [GapComponent]
+  styleUrls: ['./tm.component.scss']
 })
 export class TmComponent implements OnInit, AfterViewInit {
-  @ViewChildren(GapComponent) gaps: QueryList<GapComponent>;
+  @ViewChild('toolbar', { static: false }) toolbarRef: ElementRef;
+  @ViewChild(CKEditorComponent, { static: false }) editor: CKEditorComponent;
+  @Input() viewMode: TmViewMode = TmViewMode.Editor;
   editorBuild = DecoupledEditor;
-  editorConfig = {
-    language: 'pt-br'
-  };
+  editorConfig: any;
   editorData = 'Testandoooooooooooo';
-  gapConfigForm: FormGroup;
-  @ViewChild(CKEditorComponent, { static: false })
+  documentForm: FormGroup;
   ckComponentRef: CKEditorComponent;
-  papers = [
-    { label: 'A4', height: '297mm', width: '210mm' },
-    { label: 'A3', height: '420mm', width: '297mm' },
-    { label: 'A5', height: '210mm', width: '148mm' }
-  ];
-  currentPageType = this.papers[0];
+  currentPageType;
+  papers: any[]
 
   constructor(
     private fb: FormBuilder,
-    private gapService: GapService,
-    private ref: ChangeDetectorRef
-  ) { }
+    private render: Renderer2,
+    private sanitizer: DomSanitizer
+  ) {
+    this.papers = [
+      { label: 'A4', height: 297, width: 210 },
+      { label: 'A3', height: 420, width: 297 },
+      { label: 'A5', height: 210, width: 148 },
+      { label: 'Customizado', custom: true }
+    ];
+    this.currentPageType = this.papers[0];
+    this.editorConfig = {
+      language: 'pt-br'
+    };
+  }
 
   ngOnInit() {
     this.createGapConfigForm();
-    this.setUpPage();
   }
 
   ngAfterViewInit() {
-    this.ckComponentRef.ready.subscribe((editor: CKEditor5.Editor) => {
-    });
-
-    this.ckComponentRef.change.subscribe(editor => {
-      setTimeout(() => {
-        this.ref.markForCheck();
-        console.log(this.gaps);
-      }, 300);
-    });
-
-    console.log(this.ckComponentRef.tagName);
-
-    this.ckComponentRef.focus.subscribe((data: { event: any, editor: CKEditor5.Editor }) => this.setUpPage(data.editor));
-    this.ckComponentRef.blur.subscribe((data: { event: any, editor: CKEditor5.Editor }) => this.setUpPage(data.editor));
-  }
-
-  onPageChange(value) {
-    this.currentPageType = value;
     this.setUpPage();
   }
 
+  onPageChange({ value }) {
+    const found = this.papers.find(p => p.label === value);
+
+    if (found) {
+      this.currentPageType = found;
+      this.setUpPage();
+    }
+  }
+
   setUpPage() {
-    console.log(this.currentPageType);
-    
-    document.documentElement.style.setProperty('--page-width', this.currentPageType.width);
-    document.documentElement.style.setProperty('--page-height', this.currentPageType.height);
+    const pageWidth = this.currentPageType.width;
+    const pageHeight = this.currentPageType.height;
+    const stageWidth = pageWidth + 20;
+    const stageHeight = pageHeight + 20;
+
+    this.setStyleVar('--page-width', `${pageWidth}mm`);
+    this.setStyleVar('--page-height', `${pageHeight}mm`);
+    this.setStyleVar('--stage-width', `${stageWidth}mm`);
+    this.setStyleVar('--stage-height', `${stageHeight}mm`);
   }
 
   private createGapConfigForm() {
-    this.gapConfigForm = this.fb.group({
-      name: this.fb.control(''),
-      maxChar: this.fb.control(''),
-      underline: this.fb.control(true)
-    });
+    this.documentForm = this.fb.group({
+      pageType: this.fb.control('A4'),
+      pageWidth: this.fb.control(this.currentPageType.pageWidth),
+      pageHeight: this.fb.control(this.currentPageType.pageHeight),
+      background: this.fb.control(''),
+      orientation: this.fb.control('portrait'),
+    })
   }
 
-  onAddGapConfig(gapConfigData: any) {
-    console.warn("Gap Config", gapConfigData);
-    this.gapService.create(gapConfigData as GapConfig);
-    const gapDOM = this.gapService.getDOM();
-    const ckeditor = this.ckComponentRef.editorInstance;
-    const viewFragment = ckeditor.data.processor.toView(gapDOM);
-    const modelFragment = ckeditor.data.toModel(viewFragment);
-    ckeditor.model.insertContent(modelFragment);
-
-    // this.ckComponentRef.editorInstance.model.change(writer => {
-    //   const position = ckeditor.model.document.selection.getFirstPosition();
-    //   console.warn('Selection OBject', position);
-    //   console.log(gapDOM);
-
-    //   writer.insertContent(gapDOM, position);
-    // });
-    this.gapConfigForm.reset();
-  }
-
-  onReady(editor) {
-    editor.ui.getEditableElement().parentElement.insertBefore(
-      editor.ui.view.toolbar.element,
-      editor.ui.getEditableElement()
+  onReady(editor: CKEditor5.Editor) {
+    this.render.appendChild(
+      this.toolbarRef.nativeElement,
+      editor.ui.view.toolbar.element
     );
+    editor.setData(this.editorData);
+    // editor.plugins.get('FileRepository').createUploadAdapter = loader => {
+    // console.log(loader);
+    // }
+  }
+  onOrientationChange(event) {
+    console.log(event);
+    const swap = this.currentPageType.height;
+    this.currentPageType.height = this.currentPageType.width;
+    this.currentPageType.width = swap;
+    this.setUpPage();
+  }
+  onChangeBg(event: any) {
+    // const editorRef = this.render.selectRootElement('ckeditor.custom-editor') as HTMLElement;
+    const mediaBg = event.target.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(mediaBg);
+    reader.onload = () => {
+      const uri = reader.result as string;
+      this.setStyleVar('--page-background-uri', `url(${uri})`);
+    };
+
+    reader.onerror = e => {
+      console.log(e);
+    }
+  }
+
+  private setStyleVar(name: string, value: string) {
+    document.documentElement.style.setProperty(name, value);
   }
 
 }
