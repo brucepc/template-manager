@@ -1,5 +1,9 @@
 $pageWidth: var(--page-width);
 $pageHeight: var(--page-height);
+$margemSuperior: var(--page-margem-superior);
+$margemDireita: var(--page-margem-direita);
+$margemInferior: var(--page-margem-inferior);
+$margemEsquerda: var(--page-margem-esquerda);
 $stageWidth: var(--stage-width);
 $stageHeight: var(--stage-height);
 $backgroundURI: var(--page-background-uri);
@@ -28,7 +32,8 @@ $backgroundURI: var(--page-background-uri);
                 padding: 0 8px;
 
                 form,
-                h2 {
+                h2,
+                h5 {
                     display: inline-block;
                     width: calc(100% - var(--settings-margin));
                 }
@@ -39,15 +44,19 @@ $backgroundURI: var(--page-background-uri);
                     mat-slide-toggle,
                     mat-radio-group {
                         width: 100%;
+
+                        .mat-radio-button {
+                            margin: 8px;
+                        }
                     }
 
-
-                    mat-radio-group,
-                    .pageSize {
+                    .pageSize,
+                    .margem {
                         display: flex;
+                        flex-wrap: wrap;
                         justify-content: space-between;
 
-                        .mat-form-field::not(:first-child) {
+                        .mat-form-field {
                             // margin-left: 6px;
                             width: calc(50% - 8px);
                         }
@@ -56,6 +65,18 @@ $backgroundURI: var(--page-background-uri);
 
                 @media print {
                     display: none;
+                }
+
+                .actions {
+                    display: flex;
+                    justify-content: space-between;
+                    margin: 8px;
+                    width: 100%;
+
+                    button {
+                        flex-grow: 1;
+                        margin: 8px;
+                    }
                 }
             }
 
@@ -76,6 +97,7 @@ $backgroundURI: var(--page-background-uri);
 
                 .editor-container {
                     display: block;
+                    height: calc(100% - var(--tool-bar-height));
 
                     @media screen {
                         border-left: 1px solid lightgray;
@@ -84,7 +106,6 @@ $backgroundURI: var(--page-background-uri);
                         max-height: stretch;
                         overflow: auto;
                         background-color: lightgray;
-                        // padding: 20px;
                     }
 
                     .editor-background {
@@ -112,13 +133,83 @@ $backgroundURI: var(--page-background-uri);
                             background-size: cover;
 
                             &>.ck.ck-content {
+                                padding-top: $margemSuperior;
+                                padding-right: $margemDireita;
+                                padding-bottom: $margemInferior;
+                                padding-left: $margemEsquerda;
                                 border: none;
                                 height: 100%;
                                 overflow: hidden;
+
+                                tmgap {
+                                    border-bottom: 1px solid lightgray;
+                                }
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+
+    &>.overlay {
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        background-color: rgba(37, 34, 34, 0.333);
+        transform: translateX(100vw);
+        opacity: 0;
+        transition: transform 0ms ease-in-out 300ms, opacity 300ms ease-in-out;
+
+        .modal {
+            background-color: white;
+            padding: 8px;
+            border-radius: 8px;
+            width: 250px;
+            margin-top: -200px;
+            opacity: 0;
+            transition: all 300ms;
+
+            .header {
+                display: flex;
+                justify-content: space-between;
+
+                h3 {
+                    font-weight: normal;
+                    margin: 8px 0;
+                }
+
+                .close {
+                    font-weight: bold;
+                    cursor: pointer;
+                }
+            }
+
+            form {
+                display: flex;
+                flex-direction: column;
+
+                .button-row {
+                    button {
+                        margin: 8px;
+                    }
+                }
+            }
+        }
+
+        &.open {
+            opacity: 1;
+            transform: translateX(0);
+            transition: opacity 300ms ease-in-out;
+
+            .modal {
+                margin: 0px;
+                opacity: 1;
             }
         }
     }

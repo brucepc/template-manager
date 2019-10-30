@@ -1,35 +1,65 @@
 <div class="container">
   <section class="settings">
     <h2>Documento</h2>
-    <section>
-      <h3>Configurações da pagina</h3>
-      <form [formGroup]="documentForm">
-        <mat-form-field>
-          <mat-label>Tamanho da pagina</mat-label>
-          <mat-select formControlName="pageType" (selectionChange)="onPageChange($event)" required>
-            <mat-option *ngFor="let paper of papers" [value]="paper.label">
-              {{paper.label}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <h5>Tamanho personalizado</h5>
-        <div class="pageSize">
-          <mat-form-field>
-            <mat-label>Largura</mat-label>
-            <input matInput formControlName="pageWidth">
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Altura</mat-label>
-            <input matInput formControlName="pageHeight">
-          </mat-form-field>
-        </div>
+    <h3>Configurações da pagina</h3>
+    <form [formGroup]="documentForm">
+      <section class="orientation">
+        <h5>Orientação da pagina</h5>
         <mat-radio-group formControlName='orientation' (change)='onOrientationChange($event)'>
           <mat-radio-button value='landscape'>Paisagem</mat-radio-button>
           <mat-radio-button value='portrait'>Retrato</mat-radio-button>
         </mat-radio-group>
-        <h5>Plano de fundo</h5>
-        <input id='page-background' formControlName="background" (change)='onChangeBg($event)' type="file">
-      </form>
+      </section>
+      <mat-form-field>
+        <mat-label>Tamanho da pagina</mat-label>
+        <mat-select formControlName="pageType" (selectionChange)="onPageChange($event)" required>
+          <mat-option *ngFor="let paper of papers" [value]="paper">
+            {{paper.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <section class="margem">
+        <h5>Margem</h5>
+        <mat-form-field>
+          <mat-label>Esquerda</mat-label>
+          <input matInput (change)='onMarginChange()' formControlName="margemEsquerda" type='number'>
+          <span matSuffix>mm</span>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Superior</mat-label>
+          <input matInput (change)='onMarginChange()' formControlName="margemSuperior" type='number'>
+          <span matSuffix>mm</span>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Direita</mat-label>
+          <input matInput (change)='onMarginChange()' formControlName="margemDireita" type='number'>
+          <span matSuffix>mm</span>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Inferior</mat-label>
+          <input matInput (change)='onMarginChange()' formControlName="margemInferior" type='number'>
+          <span matSuffix>mm</span>
+        </mat-form-field>
+      </section>
+      <h5>Tamanho personalizado</h5>
+      <section class="pageSize">
+        <mat-form-field>
+          <mat-label>Largura</mat-label>
+          <input matInput (change)='onPageSizeChange()' type="number" formControlName="pageWidth">
+          <span matSuffix>mm</span>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Altura</mat-label>
+          <input matInput (change)='onPageSizeChange()' type="number" formControlName="pageHeight">
+          <span matSuffix>mm</span>
+        </mat-form-field>
+      </section>
+      <h5>Plano de fundo</h5>
+      <input id='page-background' formControlName="background" (change)='onChangeBg($event)' type="file">
+    </form>
+    <section class="actions">
+      <button mat-raised-button (click)='save()' color='primary'>Salvar</button>
+      <!-- <button mat-raised-button (click)='onOpenModal()' color='primary'>Adicionar Lacuna</button> -->
     </section>
   </section>
   <section class="editor">
@@ -43,3 +73,29 @@
     </div>
   </section>
 </div>
+<!-- <div class="overlay open" #modalRef>
+  <section class="modal">
+    <div class="header">
+      <h3>
+        Adicionar lacuna
+      </h3>
+      <small class="close" (click)='onCloseModal()'>X</small>
+    </div>
+    <form [formGroup]="gapForm">
+      <div>
+        <mat-form-field>
+          <mat-label>Propriedade da Lacuna</mat-label>
+          <mat-select formControlName="gapProperty" required>
+            <mat-option *ngFor="let prop of gapProperties" [value]="prop">
+              {{prop.description}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="button-row">
+        <button type="reset" (click)='onCloseModal()' mat-raised-button>Cancelar</button>
+        <button type="submit" (click)='onAddGap()' mat-raised-button color="primary">Adicionar</button>
+      </div>
+    </form>
+  </section>
+</div> -->

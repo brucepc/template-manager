@@ -6,11 +6,11 @@ import {
   MatRadioModule,
   MatSelectModule,
   MatInputModule,
-  MatSlideToggleModule
+  MatSlideToggleModule,
+  MatButtonModule
 } from '@angular/material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GapModule } from '../gap/gap.module';
-import { NgSelectModule } from '@ng-select/ng-select';
 
 
 @NgModule({
@@ -22,11 +22,11 @@ import { NgSelectModule } from '@ng-select/ng-select';
     FormsModule,
     CKEditorModule,
     GapModule,
-    NgSelectModule,
     MatSelectModule,
     MatInputModule,
     MatSlideToggleModule,
-    MatRadioModule
+    MatRadioModule,
+    MatButtonModule
   ]
 })
 export class TmModule { }

@@ -16,12 +16,18 @@ import {
   FormGroup,
   FormBuilder
 } from '@angular/forms';
-import { DomSanitizer } from '@angular/platform-browser';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 export enum TmViewMode {
   Print = 'p',
   Editor = 'e'
-};
+}
+
+export class PageConstrains {
+  label: string;
+  size?: { height: number, width: number };
+  custom?: boolean;
+}
 
 @Component({
   selector: 'blockchain-tm',
@@ -29,27 +35,34 @@ export enum TmViewMode {
   styleUrls: ['./tm.component.scss']
 })
 export class TmComponent implements OnInit, AfterViewInit {
-  @ViewChild('toolbar', { static: false }) toolbarRef: ElementRef;
-  @ViewChild(CKEditorComponent, { static: false }) editor: CKEditorComponent;
+  @ViewChild('toolbar', { static: false })
+  toolbarRef: ElementRef;
+  @ViewChild(CKEditorComponent, { static: false })
+  editor: CKEditorComponent;
+  @ViewChild('modalRef', { static: false })
+  modalRef: ElementRef;
   @Input() viewMode: TmViewMode = TmViewMode.Editor;
   editorBuild = DecoupledEditor;
   editorConfig: any;
   editorData = 'Testandoooooooooooo';
   documentForm: FormGroup;
+  gapForm: FormGroup;
   ckComponentRef: CKEditorComponent;
   currentPageType;
-  papers: any[]
+  papers: PageConstrains[];
 
   constructor(
     private fb: FormBuilder,
     private render: Renderer2,
-    private sanitizer: DomSanitizer
   ) {
+    /*******************************
+     * AVAILABLE PAGE SIZES        *
+     *******************************/
     this.papers = [
-      { label: 'A4', height: 297, width: 210 },
-      { label: 'A3', height: 420, width: 297 },
-      { label: 'A5', height: 210, width: 148 },
-      { label: 'Customizado', custom: true }
+      { label: 'A4', size: { height: 297, width: 210 } } as PageConstrains,
+      { label: 'A3', size: { height: 420, width: 297 } } as PageConstrains,
+      { label: 'A5', size: { height: 210, width: 148 } } as PageConstrains,
+      { label: 'Customizado', custom: true } as PageConstrains
     ];
     this.currentPageType = this.papers[0];
     this.editorConfig = {
@@ -58,42 +71,30 @@ export class TmComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.createGapConfigForm();
+    this.createDocumentForm();
+    this.createGapForm();
   }
 
   ngAfterViewInit() {
-    this.setUpPage();
+    this.setPage(this.papers[0]);
+    this.setPageSize();
   }
 
   onPageChange({ value }) {
-    const found = this.papers.find(p => p.label === value);
+    const found = this.papers.find(p => p.label === value.label);
 
     if (found) {
-      this.currentPageType = found;
-      this.setUpPage();
+      this.setPage(found);
+      this.setPageSize();
     }
   }
 
-  setUpPage() {
-    const pageWidth = this.currentPageType.width;
-    const pageHeight = this.currentPageType.height;
-    const stageWidth = pageWidth + 20;
-    const stageHeight = pageHeight + 20;
-
-    this.setStyleVar('--page-width', `${pageWidth}mm`);
-    this.setStyleVar('--page-height', `${pageHeight}mm`);
-    this.setStyleVar('--stage-width', `${stageWidth}mm`);
-    this.setStyleVar('--stage-height', `${stageHeight}mm`);
-  }
-
-  private createGapConfigForm() {
-    this.documentForm = this.fb.group({
-      pageType: this.fb.control('A4'),
-      pageWidth: this.fb.control(this.currentPageType.pageWidth),
-      pageHeight: this.fb.control(this.currentPageType.pageHeight),
-      background: this.fb.control(''),
-      orientation: this.fb.control('portrait'),
-    })
+  onPageSizeChange() {
+    if (!this.currentPageType.custom) {
+      this.documentForm.controls.pageType
+        .setValue(this.papers.find(p => p.custom));
+    }
+    this.setPageSize();
   }
 
   onReady(editor: CKEditor5.Editor) {
@@ -101,20 +102,17 @@ export class TmComponent implements OnInit, AfterViewInit {
       this.toolbarRef.nativeElement,
       editor.ui.view.toolbar.element
     );
-    editor.setData(this.editorData);
-    // editor.plugins.get('FileRepository').createUploadAdapter = loader => {
-    // console.log(loader);
-    // }
+
   }
-  onOrientationChange(event) {
-    console.log(event);
-    const swap = this.currentPageType.height;
-    this.currentPageType.height = this.currentPageType.width;
-    this.currentPageType.width = swap;
-    this.setUpPage();
+
+  onOrientationChange() {
+    const swap = this.pageHeight;
+    this.pageHeight = this.pageWidth;
+    this.pageWidth = swap;
+    this.setPageSize();
   }
+
   onChangeBg(event: any) {
-    // const editorRef = this.render.selectRootElement('ckeditor.custom-editor') as HTMLElement;
     const mediaBg = event.target.files[0];
     const reader = new FileReader();
     reader.readAsDataURL(mediaBg);
@@ -125,6 +123,94 @@ export class TmComponent implements OnInit, AfterViewInit {
 
     reader.onerror = e => {
       console.log(e);
+    };
+  }
+
+  onMarginChange() {
+    this.setPageSize();
+  }
+
+  onCloseModal() {
+    this.render.removeClass(this.modalRef.nativeElement, 'open');
+  }
+
+  onOpenModal() {
+    this.render.addClass(this.modalRef.nativeElement, 'open');
+  }
+
+  onAddGap() {
+    const model = this.editor.editorInstance.model;
+    model.change(writer => {
+
+      const elem = writer.createElement('gap', {
+        'tmProp': 'teste'
+      });
+      const insertAtSelection = model.document.selection.getFirstPosition();
+      writer.appendText('NEW PROP', elem);
+      model.insertContent(elem, insertAtSelection);
+
+      if (elem.parent) {
+        writer.setSelection(elem, 'on');
+      }
+    });
+  }
+
+  // Getters and Setters
+  //region
+  get pageWidth(): number {
+    return this.documentForm.controls.pageWidth.value;
+  }
+
+  set pageWidth(w: number) {
+    this.documentForm.controls.pageWidth.setValue(w);
+  }
+
+  get pageHeight(): number {
+    return this.documentForm.controls.pageHeight.value;
+  }
+
+  set pageHeight(h: number) {
+    this.documentForm.controls.pageHeight.setValue(h);
+  }
+
+  get margemSuperior(): number {
+    return this.documentForm.controls.margemSuperior.value;
+  }
+
+  set mergemSuperior(m: number) {
+    this.documentForm.controls.margemSuperior.setValue(m);
+  }
+
+  get margemDireita(): number {
+    return this.documentForm.controls.margemDireita.value;
+  }
+
+  set mergemDireita(m: number) {
+    this.documentForm.controls.margemDireita.setValue(m);
+  }
+
+  get margemInferior(): number {
+    return this.documentForm.controls.margemInferior.value;
+  }
+
+  set mergemInferior(m: number) {
+    this.documentForm.controls.margemInferior.setValue(m);
+  }
+
+  get margemEsquerda(): number {
+    return this.documentForm.controls.margemEsquerda.value;
+  }
+
+  set mergemEsquerda(m: number) {
+    this.documentForm.controls.margemEsquerda.setValue(m);
+  }
+  //endregion
+
+  private setPage(page: PageConstrains) {
+    this.currentPageType = page;
+    if (page.custom !== true) {
+      this.pageWidth = page.size.width;
+      this.pageHeight = page.size.height;
     }
   }
 
@@ -132,4 +218,44 @@ export class TmComponent implements OnInit, AfterViewInit {
     document.documentElement.style.setProperty(name, value);
   }
 
+  private createDocumentForm() {
+    const defaultPage = this.papers[0];
+    this.documentForm = this.fb.group({
+      pageType: this.fb.control(defaultPage),
+      pageWidth: this.fb.control(''),
+      pageHeight: this.fb.control(''),
+      margemSuperior: this.fb.control('30'),
+      margemEsquerda: this.fb.control('30'),
+      margemDireita: this.fb.control('20'),
+      margemInferior: this.fb.control('20'),
+      background: this.fb.control(''),
+      orientation: this.fb.control('portrait'),
+    });
+  }
+
+  private createGapForm() {
+    this.gapForm = this.fb.group({
+      gapProperty: this.fb.control('')
+    });
+  }
+
+  private setPageSize() {
+    const pageWidth = this.pageWidth;
+    const pageHeight = this.pageHeight;
+    const mergemSuperior = this.margemSuperior;
+    const mergemDireita = this.margemDireita;
+    const mergemInferior = this.margemInferior;
+    const mergemEsquerda = this.margemEsquerda;
+    const stageWidth = pageWidth + 20;
+    const stageHeight = pageHeight + 20;
+
+    this.setStyleVar('--page-width', `${pageWidth}mm`);
+    this.setStyleVar('--page-height', `${pageHeight}mm`);
+    this.setStyleVar('--page-margem-superior', `${mergemSuperior}mm`);
+    this.setStyleVar('--page-margem-direita', `${mergemDireita}mm`);
+    this.setStyleVar('--page-margem-inferior', `${mergemInferior}mm`);
+    this.setStyleVar('--page-margem-esquerda', `${mergemEsquerda}mm`);
+    this.setStyleVar('--stage-width', `${stageWidth}mm`);
+    this.setStyleVar('--stage-height', `${stageHeight}mm`);
+  }
 }
