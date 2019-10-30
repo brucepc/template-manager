@@ -84,12 +84,14 @@ $backgroundURI: var(--page-background-uri);
                         max-height: stretch;
                         overflow: auto;
                         background-color: lightgray;
-                        padding: 20px;
+                        // padding: 20px;
                     }
 
                     .editor-background {
-
-
+                        height: calc(#{$pageHeight} + 20px);
+                        width: calc(#{$pageWidth} + 20px);
+                        padding-top: 20px;
+                        min-width: 100%;
 
                         @media print {
                             width: $pageWidth;
@@ -99,6 +101,7 @@ $backgroundURI: var(--page-background-uri);
 
                         &>ckeditor.custom-editor {
                             display: block;
+                            margin: 0 auto;
                             box-shadow: 0px 0px 6px 2px rgba(0, 0, 0, 0.3);
                             background-color: white;
                             border: none;
@@ -106,7 +109,7 @@ $backgroundURI: var(--page-background-uri);
                             height: calc(#{$pageHeight} + 0px);
                             width: calc(#{$pageWidth} + 0px);
                             background-image: $backgroundURI;
-                            background-size: 100%;
+                            background-size: cover;
 
                             &>.ck.ck-content {
                                 border: none;
