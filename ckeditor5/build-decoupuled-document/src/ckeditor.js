@@ -33,9 +33,8 @@ import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
-import CustomElementPlugin from 'ckeditor5-custom-element/src/customelement';
+import CustomElementPlugin from './ckeditor5-custom-element/src/customelement';
 
-import lacunaText from './lacuna-text.svg';
 
 export default class DecoupledEditor extends DecoupledEditorBase {}
 
@@ -123,20 +122,6 @@ DecoupledEditor.defaultConfig = {
 			'tableRow',
 			'mergeTableCells'
 		]
-	},
-	CustomElement: {
-		items: [ {
-			tag: 'tmGap',
-			placeholder: '__________',
-			attributes: {
-				maxChar: 20,
-				name: 'teste',
-				underline: true
-			},
-			icon: lacunaText,
-			inline: true,
-			editable: true
-		} ]
 	},
 	// This value must be kept in sync with the language defined in webpack.config.js.
 	language: 'pt-br'

@@ -16,7 +16,8 @@ import {
   FormGroup,
   FormBuilder
 } from '@angular/forms';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { skip } from 'rxjs/operators';
 
 export enum TmViewMode {
   Print = 'p',
@@ -50,6 +51,9 @@ export class TmComponent implements OnInit, AfterViewInit {
   ckComponentRef: CKEditorComponent;
   currentPageType;
   papers: PageConstrains[];
+  gapProperties: any[];
+  private gapNameSubject: BehaviorSubject<any>;
+  private gapNameObs: Observable<any>;
 
   constructor(
     private fb: FormBuilder,
@@ -66,8 +70,30 @@ export class TmComponent implements OnInit, AfterViewInit {
     ];
     this.currentPageType = this.papers[0];
     this.editorConfig = {
+      CustomElement: {
+        items: [{
+          tag: 'tmGap',
+          placeholder: ' ',
+          attributes: {
+            name: '',
+            maxChar: 1,
+            underline: 'true'
+          },
+          onCreate: async (tagName) => {
+            return await this.getGapName();
+          },
+          inline: true,
+          editable: true
+        }]
+      },
       language: 'pt-br'
     };
+    this.gapNameSubject = new BehaviorSubject<any>(null);
+    this.gapNameObs = this.gapNameSubject.asObservable().pipe(skip(1));
+    this.gapProperties = [
+      { description: 'Name', value: 'user.name' },
+      { description: 'Idade', value: 'user.age' }
+    ];
   }
 
   ngOnInit() {
@@ -131,29 +157,56 @@ export class TmComponent implements OnInit, AfterViewInit {
   }
 
   onCloseModal() {
+    this.gapForm.reset();
     this.render.removeClass(this.modalRef.nativeElement, 'open');
+    this.gapNameSubject.next(null);
   }
 
   onOpenModal() {
     this.render.addClass(this.modalRef.nativeElement, 'open');
   }
 
-  onAddGap() {
-    const model = this.editor.editorInstance.model;
-    model.change(writer => {
-
-      const elem = writer.createElement('gap', {
-        'tmProp': 'teste'
-      });
-      const insertAtSelection = model.document.selection.getFirstPosition();
-      writer.appendText('NEW PROP', elem);
-      model.insertContent(elem, insertAtSelection);
-
-      if (elem.parent) {
-        writer.setSelection(elem, 'on');
-      }
+  getGapName() {
+    this.onOpenModal();
+    return new Promise((res, rej) => {
+      this.gapNameObs.subscribe(gapName => {
+        if (gapName === null) {
+          rej(null);
+        } else {
+          res(gapName);
+        }
+      })
     });
   }
+
+  onAddGap() {
+    if (this.gapForm.valid) {
+      let prop = this.gapForm.controls.gapName.value
+      this.gapNameSubject.next({
+        name: prop.value,
+        maxChar: this.gapForm.controls.maxChar.value,
+        underline: `${this.gapForm.controls.underline.value}`
+      });
+      this.onCloseModal();
+    }
+  }
+
+  // onAddGap() {
+  //   const model = this.editor.editorInstance.model;
+  //   model.change(writer => {
+
+  //     const elem = writer.createElement('gap', {
+  //       'tmProp': 'teste'
+  //     });
+  //     const insertAtSelection = model.document.selection.getFirstPosition();
+  //     writer.appendText('NEW PROP', elem);
+  //     model.insertContent(elem, insertAtSelection);
+
+  //     if (elem.parent) {
+  //       writer.setSelection(elem, 'on');
+  //     }
+  //   });
+  // }
 
   // Getters and Setters
   //region
@@ -235,7 +288,9 @@ export class TmComponent implements OnInit, AfterViewInit {
 
   private createGapForm() {
     this.gapForm = this.fb.group({
-      gapProperty: this.fb.control('')
+      gapName: this.fb.control(''),
+      maxChar: this.fb.control(1),
+      underline: this.fb.control(true)
     });
   }
 

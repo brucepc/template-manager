@@ -73,24 +73,30 @@
     </div>
   </section>
 </div>
-<!-- <div class="overlay open" #modalRef>
+<div class="overlay" #modalRef>
   <section class="modal">
     <div class="header">
       <h3>
         Adicionar lacuna
       </h3>
-      <small class="close" (click)='onCloseModal()'>X</small>
     </div>
     <form [formGroup]="gapForm">
-      <div>
+      <div class="fields">
         <mat-form-field>
           <mat-label>Propriedade da Lacuna</mat-label>
-          <mat-select formControlName="gapProperty" required>
+          <mat-select formControlName="gapName" required>
             <mat-option *ngFor="let prop of gapProperties" [value]="prop">
               {{prop.description}}
             </mat-option>
           </mat-select>
         </mat-form-field>
+        <mat-form-field>
+          <mat-label>Tamanho maximo</mat-label>
+          <input type="number" matInput formControlName="maxChar" required>
+        </mat-form-field>
+        <mat-slide-toggle formControlName="underline">
+          Sublinhado
+        </mat-slide-toggle>
       </div>
       <div class="button-row">
         <button type="reset" (click)='onCloseModal()' mat-raised-button>Cancelar</button>
@@ -98,4 +104,4 @@
       </div>
     </form>
   </section>
-</div> -->
+</div>
