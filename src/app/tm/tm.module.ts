@@ -10,18 +10,19 @@ import {
   MatButtonModule
 } from '@angular/material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { GapModule } from '../gap/gap.module';
+import { TmPrintComponent } from './tm-print/tm-print.component';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
-  declarations: [TmComponent],
-  exports: [TmComponent],
+  declarations: [TmComponent, TmPrintComponent],
+  exports: [TmComponent, TmPrintComponent],
   imports: [
     CommonModule,
+    HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
     CKEditorModule,
-    GapModule,
     MatSelectModule,
     MatInputModule,
     MatSlideToggleModule,

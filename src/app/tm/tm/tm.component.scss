@@ -1,12 +1,4 @@
-$pageWidth: var(--page-width);
-$pageHeight: var(--page-height);
-$margemSuperior: var(--page-margem-superior);
-$margemDireita: var(--page-margem-direita);
-$margemInferior: var(--page-margem-inferior);
-$margemEsquerda: var(--page-margem-esquerda);
-$stageWidth: var(--stage-width);
-$stageHeight: var(--stage-height);
-$backgroundURI: var(--page-background-uri);
+@import './ckeditor';
 
 :host ::ng-deep {
     --tool-bar-height: 40px;
@@ -64,10 +56,6 @@ $backgroundURI: var(--page-background-uri);
                     }
                 }
 
-                @media print {
-                    display: none;
-                }
-
                 .actions {
                     display: flex;
                     justify-content: space-between;
@@ -90,65 +78,25 @@ $backgroundURI: var(--page-background-uri);
 
                 .toolbar {
                     height: max-content;
-
-                    @media print {
-                        display: none;
-                    }
                 }
 
                 .editor-container {
                     display: block;
                     height: calc(100% - var(--tool-bar-height));
-
-                    @media screen {
-                        border-left: 1px solid lightgray;
-                        border-right: 1px solid lightgray;
-                        border-bottom: 1px solid lightgray;
-                        max-height: stretch;
-                        overflow: auto;
-                        background-color: lightgray;
-                    }
+                    border-left: 1px solid lightgray;
+                    border-right: 1px solid lightgray;
+                    border-bottom: 1px solid lightgray;
+                    max-height: stretch;
+                    overflow: auto;
+                    background-color: lightgray;
 
                     .editor-background {
-                        height: calc(#{$stageHeight});
-                        width: calc(#{$stageWidth});
+                        height: $stageHeight;
+                        width: $stageWidth;
                         padding-top: 20px;
-                        // min-height: 100%;
                         min-width: 100%;
 
-                        @media print {
-                            width: $pageWidth;
-                            height: $pageHeight;
-                        }
-
-
-                        &>ckeditor.custom-editor {
-                            display: block;
-                            margin: 0 auto;
-                            box-shadow: 0px 0px 6px 2px rgba(0, 0, 0, 0.3);
-                            background-color: white;
-                            border: none;
-                            box-sizing: border-box;
-                            height: calc(#{$pageHeight} + 0px);
-                            width: calc(#{$pageWidth} + 0px);
-                            background-image: $backgroundURI;
-                            background-size: cover;
-
-                            &>.ck.ck-content {
-                                padding-top: $margemSuperior;
-                                padding-right: $margemDireita;
-                                padding-bottom: $margemInferior;
-                                padding-left: $margemEsquerda;
-                                border: none;
-                                height: 100%;
-                                box-sizing: border-box;
-                                overflow: hidden;
-
-                                tmgap[underline] {
-                                    border-bottom: 1px solid lightgray;
-                                }
-                            }
-                        }
+                        @include ckeditor();
                     }
                 }
             }

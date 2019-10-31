@@ -58,7 +58,7 @@
       <input id='page-background' formControlName="background" (change)='onChangeBg($event)' type="file">
     </form>
     <section class="actions">
-      <button mat-raised-button (click)='save()' color='primary'>Salvar</button>
+      <button mat-raised-button (click)='onSave()' color='primary'>Salvar</button>
       <!-- <button mat-raised-button (click)='onOpenModal()' color='primary'>Adicionar Lacuna</button> -->
     </section>
   </section>
@@ -66,13 +66,19 @@
     <div #toolbar class="toolbar"></div>
     <div class="editor-container">
       <div class="editor-background">
-        <ckeditor class="custom-editor" name='document' [editor]='editorBuild' [config]='editorConfig'
-          (ready)="onReady($event)">
+        <ckeditor 
+        class="custom-editor" 
+        name='document' 
+        [editor]='editorBuild' 
+        [config]='editorConfig'
+        [(ngModel)]='editorData'
+        (ready)="onReady($event)">
         </ckeditor>
       </div>
     </div>
   </section>
 </div>
+<!-- MODAL NEW GAP -->
 <div class="overlay" #modalRef>
   <section class="modal">
     <div class="header">

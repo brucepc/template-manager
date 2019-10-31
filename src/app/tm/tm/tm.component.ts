@@ -5,7 +5,6 @@ import {
   AfterViewInit,
   ElementRef,
   Renderer2,
-  Input
 } from '@angular/core';
 import {
   CKEditorComponent,
@@ -18,16 +17,19 @@ import {
 } from '@angular/forms';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { skip } from 'rxjs/operators';
+import { DocumentFormat } from '../document-format';
 
-export enum TmViewMode {
-  Print = 'p',
-  Editor = 'e'
-}
 
 export class PageConstrains {
   label: string;
   size?: { height: number, width: number };
   custom?: boolean;
+}
+
+export class GapConstrains {
+  name: string;
+  maxChar: number;
+  customStyle?: string;
 }
 
 @Component({
@@ -42,18 +44,19 @@ export class TmComponent implements OnInit, AfterViewInit {
   editor: CKEditorComponent;
   @ViewChild('modalRef', { static: false })
   modalRef: ElementRef;
-  @Input() viewMode: TmViewMode = TmViewMode.Editor;
   editorBuild = DecoupledEditor;
   editorConfig: any;
-  editorData = 'Testandoooooooooooo';
+  editorData: string;
   documentForm: FormGroup;
   gapForm: FormGroup;
   ckComponentRef: CKEditorComponent;
   currentPageType;
   papers: PageConstrains[];
   gapProperties: any[];
+  private background: string;
   private gapNameSubject: BehaviorSubject<any>;
   private gapNameObs: Observable<any>;
+  private formatter: DocumentFormat;
 
   constructor(
     private fb: FormBuilder,
@@ -77,7 +80,7 @@ export class TmComponent implements OnInit, AfterViewInit {
           attributes: {
             name: '',
             maxChar: 1,
-            underline: 'true'
+            customStyle: true
           },
           onCreate: async (tagName) => {
             return await this.getGapName();
@@ -94,6 +97,8 @@ export class TmComponent implements OnInit, AfterViewInit {
       { description: 'Name', value: 'user.name' },
       { description: 'Idade', value: 'user.age' }
     ];
+    this.editorData = ''; // Initial data
+    this.formatter = new DocumentFormat();
   }
 
   ngOnInit() {
@@ -144,7 +149,8 @@ export class TmComponent implements OnInit, AfterViewInit {
     reader.readAsDataURL(mediaBg);
     reader.onload = () => {
       const uri = reader.result as string;
-      this.setStyleVar('--page-background-uri', `url(${uri})`);
+      this.background = uri;
+      this.formatter.backgroundURI = `url(${uri})`;
     };
 
     reader.onerror = e => {
@@ -158,8 +164,10 @@ export class TmComponent implements OnInit, AfterViewInit {
 
   onCloseModal() {
     this.gapForm.reset();
+    this.gapForm.markAsPristine();
+    this.gapForm.markAllAsTouched();
     this.render.removeClass(this.modalRef.nativeElement, 'open');
-    this.gapNameSubject.next(null);
+    this.gapNameSubject.next('');
   }
 
   onOpenModal() {
@@ -175,41 +183,38 @@ export class TmComponent implements OnInit, AfterViewInit {
         } else {
           res(gapName);
         }
-      })
+      });
     });
   }
 
   onAddGap() {
     if (this.gapForm.valid) {
-      let prop = this.gapForm.controls.gapName.value
-      this.gapNameSubject.next({
+      const prop = this.gapForm.controls.gapName.value;
+      const gapConfig = {
         name: prop.value,
         maxChar: this.gapForm.controls.maxChar.value,
-        underline: `${this.gapForm.controls.underline.value}`
-      });
+      } as GapConstrains;
+
+      if (this.gapForm.controls.underline.value) {
+        gapConfig.customStyle = 'underline';
+      }
+
+      this.gapNameSubject.next(gapConfig);
       this.onCloseModal();
     }
   }
 
-  // onAddGap() {
-  //   const model = this.editor.editorInstance.model;
-  //   model.change(writer => {
+  onSave() {
+    const document = {
+      format: this.documentForm.value,
+      data: this.editorData,
+      background: this.background
+    };
+    console.log('Data', btoa(this.editorData));
+    console.log('Document', document);
+  }
 
-  //     const elem = writer.createElement('gap', {
-  //       'tmProp': 'teste'
-  //     });
-  //     const insertAtSelection = model.document.selection.getFirstPosition();
-  //     writer.appendText('NEW PROP', elem);
-  //     model.insertContent(elem, insertAtSelection);
-
-  //     if (elem.parent) {
-  //       writer.setSelection(elem, 'on');
-  //     }
-  //   });
-  // }
-
-  // Getters and Setters
-  //region
+  // #region Getters and Setters
   get pageWidth(): number {
     return this.documentForm.controls.pageWidth.value;
   }
@@ -257,8 +262,9 @@ export class TmComponent implements OnInit, AfterViewInit {
   set mergemEsquerda(m: number) {
     this.documentForm.controls.margemEsquerda.setValue(m);
   }
-  //endregion
+  // #endregion
 
+  // #region Private Methods
   private setPage(page: PageConstrains) {
     this.currentPageType = page;
     if (page.custom !== true) {
@@ -297,20 +303,21 @@ export class TmComponent implements OnInit, AfterViewInit {
   private setPageSize() {
     const pageWidth = this.pageWidth;
     const pageHeight = this.pageHeight;
-    const mergemSuperior = this.margemSuperior;
-    const mergemDireita = this.margemDireita;
-    const mergemInferior = this.margemInferior;
-    const mergemEsquerda = this.margemEsquerda;
+    const margemSuperior = this.margemSuperior;
+    const margemDireita = this.margemDireita;
+    const margemInferior = this.margemInferior;
+    const margemEsquerda = this.margemEsquerda;
     const stageWidth = pageWidth + 20;
     const stageHeight = pageHeight + 20;
 
-    this.setStyleVar('--page-width', `${pageWidth}mm`);
-    this.setStyleVar('--page-height', `${pageHeight}mm`);
-    this.setStyleVar('--page-margem-superior', `${mergemSuperior}mm`);
-    this.setStyleVar('--page-margem-direita', `${mergemDireita}mm`);
-    this.setStyleVar('--page-margem-inferior', `${mergemInferior}mm`);
-    this.setStyleVar('--page-margem-esquerda', `${mergemEsquerda}mm`);
-    this.setStyleVar('--stage-width', `${stageWidth}mm`);
-    this.setStyleVar('--stage-height', `${stageHeight}mm`);
+    this.formatter.pageWidth = `${pageWidth}mm`;
+    this.formatter.pageHeight = `${pageHeight}mm`;
+    this.formatter.margemSuperior = `${margemSuperior}mm`;
+    this.formatter.margemDireita = `${margemDireita}mm`;
+    this.formatter.margemInferior = `${margemInferior}mm`;
+    this.formatter.margemEsquerda = `${margemEsquerda}mm`;
+    this.formatter.stageWidth = `${stageWidth}mm`;
+    this.formatter.stageHeight = `${stageHeight}mm`;
   }
+  // #endregion
 }

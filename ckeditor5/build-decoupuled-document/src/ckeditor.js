@@ -33,6 +33,7 @@ import Paragraph from '@ckeditor/ckeditor5-paragraph/src/paragraph';
 import PasteFromOffice from '@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice';
 import Table from '@ckeditor/ckeditor5-table/src/table';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+import Base64UploadAdapter from '@ckeditor/ckeditor5-upload/src/adapters/base64uploadadapter';
 import CustomElementPlugin from './ckeditor5-custom-element/src/customelement';
 
 
@@ -67,6 +68,7 @@ DecoupledEditor.builtinPlugins = [
 	PasteFromOffice,
 	Table,
 	TableToolbar,
+	Base64UploadAdapter,
 	CustomElementPlugin
 ];
 
@@ -94,7 +96,6 @@ DecoupledEditor.defaultConfig = {
 			'blockquote',
 			'imageUpload',
 			'insertTable',
-			'mediaEmbed',
 			'|',
 			'custom-element-tmGap',
 			'|',
