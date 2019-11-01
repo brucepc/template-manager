@@ -1,9 +1,7 @@
-import { Component, ViewChild, AfterViewInit, ViewChildren, ElementRef } from '@angular/core';
-import DecoupledEditor from 'src/assets/editor/ckeditor';
+import { Component, AfterViewInit, ElementRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { zip } from 'rxjs';
 import { DocumentFormat } from '../document-format';
-import { CKEditorComponent } from '@ckeditor/ckeditor5-angular';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
@@ -37,7 +35,6 @@ export class TmPrintComponent implements AfterViewInit {
 
       this.editorData = this.sanitizer.bypassSecurityTrustHtml(atob(data));
       setTimeout(() => {
-        // const tags: HTMLCollection<HTMLElement | HTMLCollection> = this.element.getElementsByTagName('tmgap');
         for (const name in fillData) {
           if (fillData.hasOwnProperty(name)) {
             const tags = document.getElementsByName(name);
@@ -47,18 +44,6 @@ export class TmPrintComponent implements AfterViewInit {
                 this.setGapContent(tags[gap], fillData[name]);
               }
             }
-            //   const tag: any = tags[name];
-            //   if (tag instanceof HTMLCollection) {
-            //     console.log(tag.length);
-
-            //     for (const item in tag) {
-            //       this.fixGapStyle(tag[item]);
-            //       this.setGapContent(tag[item], fillData[name]);
-            //     }
-            //   } else {
-            //     this.fixGapStyle(tag);
-            //     this.setGapContent(tag, fillData[name]);
-            //   }
           }
         }
       }, 100);
