@@ -1,0 +1,54 @@
+@import '../tm/ckeditor.scss';
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+
+    @media print {
+        overflow: hidden;
+    }
+}
+
+*::-webkit-scrollbar {
+    display: none !important;
+}
+
+:host ::ng-deep {
+    display: block;
+    margin: 0 auto;
+    background-color: white;
+    border: none;
+    box-sizing: border-box;
+    height: $pageHeight;
+    width: $pageWidth;
+    background-image: $backgroundURI;
+    background-size: cover;
+    overflow: hidden;
+    padding-top: $margemSuperior;
+    padding-right: $margemDireita;
+    padding-bottom: $margemInferior;
+    padding-left: $margemEsquerda;
+
+    @media screen {
+        box-shadow: 0px 0px 6px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .custom-editor {
+        border: none;
+        height: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+
+        tmgap {
+            display: inline-flex;
+            justify-content: start;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        tmgap[customstyle~='underline'] {
+            border-bottom: 1px solid black;
+        }
+    }
+}

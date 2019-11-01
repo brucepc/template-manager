@@ -1,0 +1,41 @@
+$pageWidth: var(--page-width);
+$pageHeight: var(--page-height);
+$margemSuperior: var(--page-margem-superior);
+$margemDireita: var(--page-margem-direita);
+$margemInferior: var(--page-margem-inferior);
+$margemEsquerda: var(--page-margem-esquerda);
+$stageWidth: var(--stage-width);
+$stageHeight: var(--stage-height);
+$backgroundURI: var(--page-background-uri);
+
+@mixin ckeditor {
+
+    ckeditor.custom-editor {
+        display: block;
+        margin: 0 auto;
+        box-shadow: 0px 0px 6px 2px rgba(0, 0, 0, 0.3);
+        background-color: white;
+        border: none;
+        box-sizing: border-box;
+        height: $pageHeight;
+        width: $pageWidth;
+        background-image: $backgroundURI;
+        background-size: cover;
+        padding-top: $margemSuperior;
+        padding-right: $margemDireita;
+        padding-bottom: $margemInferior;
+        padding-left: $margemEsquerda;
+
+        &>.ck.ck-content {
+            border: none;
+            height: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+            box-shadow: none;
+
+            tmgap[customstyle~='underline'] {
+                border-bottom: 1px solid black;
+            }
+        }
+    }
+}
