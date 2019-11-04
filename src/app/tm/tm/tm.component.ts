@@ -5,6 +5,7 @@ import {
   AfterViewInit,
   ElementRef,
   Renderer2,
+  ViewChildren,
 } from '@angular/core';
 import {
   CKEditorComponent,
@@ -18,6 +19,8 @@ import {
 import { BehaviorSubject, Observable } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { DocumentFormat } from '../document-format';
+import { TmPrintComponent } from '../tm-print/tm-print.component';
+import { triggerAsyncId } from 'async_hooks';
 
 
 export class PageConstrains {
@@ -30,6 +33,7 @@ export class GapConstrains {
   name: string;
   maxChar: number;
   customStyle?: string;
+  placeholder?: string;
 }
 
 
@@ -58,9 +62,13 @@ export class TmComponent implements OnInit, AfterViewInit {
   editor: CKEditorComponent;
   @ViewChild('modalRef', { static: false })
   modalRef: ElementRef;
+  @ViewChild('editorContainer', { static: false })
+  editorContainer: ElementRef;
+  @ViewChild(TmPrintComponent, { static: false })
+  preview: TmPrintComponent;
   editorBuild = DecoupledEditor;
   editorConfig: any;
-  editorData: string;
+  editorData: any;
   documentForm: FormGroup;
   gapForm: FormGroup;
   ckComponentRef: CKEditorComponent;
@@ -71,6 +79,7 @@ export class TmComponent implements OnInit, AfterViewInit {
   private gapNameSubject: BehaviorSubject<any>;
   private gapNameObs: Observable<any>;
   private formatter: DocumentFormat;
+  private gaps = [];
 
   constructor(
     private fb: FormBuilder,
@@ -98,7 +107,8 @@ export class TmComponent implements OnInit, AfterViewInit {
           attributes: {
             name: '',
             maxChar: 1,
-            customStyle: true
+            customStyle: true,
+            placeholder: ''
           },
           onCreate: async (tagName) => {
             return await this.getGapName();
@@ -112,8 +122,9 @@ export class TmComponent implements OnInit, AfterViewInit {
     this.gapNameSubject = new BehaviorSubject<any>(null);
     this.gapNameObs = this.gapNameSubject.asObservable().pipe(skip(1));
     this.gapProperties = [
-      { description: 'Name', value: 'user.name' },
-      { description: 'Idade', value: 'user.age' }
+      { description: 'Name', value: 'user.name', placeholder: 'João Ribeiro Silva' },
+      { description: 'Idade', value: 'user.age', placeholder: '26' },
+      { description: 'RG', value: 'user.rg', placeholder: '21005823' }
     ];
     this.editorData = ''; // Initial data
     this.formatter = new DocumentFormat();
@@ -147,13 +158,10 @@ export class TmComponent implements OnInit, AfterViewInit {
   }
 
   onReady(editor: CKEditor5.Editor) {
-    console.log(editor.ui.componentFactory.names());
-
     this.render.appendChild(
       this.toolbarRef.nativeElement,
       editor.ui.view.toolbar.element
     );
-
   }
 
   onOrientationChange() {
@@ -213,7 +221,10 @@ export class TmComponent implements OnInit, AfterViewInit {
       const gapConfig = {
         name: prop.value,
         maxChar: this.gapForm.controls.maxChar.value,
+        placeholder: prop.placeholder
       } as GapConstrains;
+
+      this.gaps.push(gapConfig);
 
       if (this.gapForm.controls.underline.value) {
         gapConfig.customStyle = 'underline';
@@ -234,7 +245,38 @@ export class TmComponent implements OnInit, AfterViewInit {
     console.log('Document', document);
   }
 
+  openPreview() {
+    console.log(this.document);
+    this.render.addClass(this.editorContainer.nativeElement, 'show-preview');
+    this.preview.document = this.document;
+    this.preview.page = this.document;
+    setTimeout(() => {
+      this.preview.fillGaps(this.gaps);
+    }, 100);
+  }
+  closePreview() {
+    this.render.removeClass(this.editorContainer.nativeElement, 'show-preview');
+  }
+
   // #region Getters and Setters
+  get sampleData(): any {
+    return this.gaps;
+  }
+
+  get document(): any {
+    const { data } = this.editorData;
+    return this.editorData;
+  }
+
+  get pageSettings(): any {
+    console.log(this.documentForm.value);
+
+    return {
+      document: this.documentForm.value,
+      background: this.background
+    };
+  }
+
   get pageWidth(): number {
     return this.documentForm.controls.pageWidth.value;
   }

@@ -59,6 +59,10 @@ $backgroundURI: var(--page-background-uri);
 
             tmgap[customstyle~='underline'] {
                 border-bottom: 1px solid black;
+
+                &.ck-widget {
+                    display: inherit;
+                }
             }
         }
     }

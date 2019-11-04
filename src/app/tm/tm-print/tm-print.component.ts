@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { zip } from 'rxjs';
 import { DocumentFormat } from '../document-format';
@@ -13,6 +13,8 @@ export class TmPrintComponent implements AfterViewInit {
   editorData: SafeHtml;
   formatter: DocumentFormat;
   gapTags: HTMLCollection;
+  private pageSettings: any;
+  private template: any;
 
   constructor(
     private http: HttpClient,
@@ -21,45 +23,85 @@ export class TmPrintComponent implements AfterViewInit {
   ) {
   }
 
+  @Input()
+  set data(v: any) {
+    console.log('DADOOOOOS', v);
+
+    this.editorData = v;
+  }
+
+  @Input()
+  set page(v: any) {
+    this.pageSettings = v;
+  }
+
+  @Input()
+  set document(v: any) {
+    this.template = this.sanitizer.bypassSecurityTrustHtml(v);
+  }
+
   ngAfterViewInit() {
-    zip(
-      this.http.get<any>('/assets/document.json'), // Propriedades do documento
-      this.http.get<any>('/assets/sample.html'), // Documento
-      this.http.get<any>('/assets/data.json') // Dados para preencher o documento
-    ).subscribe((response) => {
-      const { data } = response[1];
-      const documentFormat = response[0];
-      const fillData = response[2];
-      console.log(documentFormat);
+    // zip(
+    //   this.http.get<any>('/assets/document.json'), // Propriedades do documento
+    //   this.http.get<any>('/assets/sample.html'), // Documento
+    //   this.http.get<any>('/assets/data.json') // Dados para preencher o documento
+    // ).subscribe((response) => {
+    //   const { data } = response[1];
+    //   const documentFormat = response[0];
+    //   const fillData = response[2];
+    //   console.log(documentFormat);
 
 
-      this.editorData = this.sanitizer.bypassSecurityTrustHtml(atob(data));
-      setTimeout(() => {
-        for (const name in fillData) {
-          if (fillData.hasOwnProperty(name)) {
-            const tags = document.getElementsByName(name);
-            for (let gap in tags) {
-              if (tags.hasOwnProperty(gap)) {
-                this.fixGapStyle(tags[gap]);
-                this.setGapContent(tags[gap], fillData[name]);
-              }
+    //   this.editorData = this.sanitizer.bypassSecurityTrustHtml(atob(data));
+    //   setTimeout(() => {
+    //     for (const name in fillData) {
+    //       if (fillData.hasOwnProperty(name)) {
+    //         const tags = document.getElementsByName(name);
+    //         for (let gap in tags) {
+    //           if (tags.hasOwnProperty(gap)) {
+    //             this.fixGapStyle(tags[gap]);
+    //             this.setGapContent(tags[gap], fillData[name]);
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }, 100);
+    // this
+    this.fillGaps(this.editorData);
+
+    this.formatter = new DocumentFormat(
+      `${this.pageSettings.pageWidth}mm`,
+      `${this.pageSettings.pageHeight}mm`,
+      `${this.pageSettings.margemSuperior}mm`,
+      `${this.pageSettings.margemDireita}mm`,
+      `${this.pageSettings.margemInferior}mm`,
+      `${this.pageSettings.margemEsquerda}mm`,
+      `${this.pageSettings.pageWidth}mm`,
+      `${this.pageSettings.pageHeight}mm`);
+
+    if (this.pageSettings.background) {
+      this.formatter.backgroundURI = this.pageSettings.background;
+    }
+  }
+
+  fillGaps(data) {
+    console.log(data);
+
+    for (const name in data) {
+      if (data.hasOwnProperty(name)) {
+        const tags = document.getElementsByName(name);
+        for (const gap in tags) {
+          if (tags.hasOwnProperty(gap)) {
+            this.fixGapStyle(tags[gap]);
+            if (data.hasOwnProperty(name)) {
+              this.setGapContent(tags[gap], data[name]);
+            } else if (data.hasOwnProperty('placeholder')) {
+              this.setGapContent(tags[gap], data.placeholder);
             }
           }
         }
-      }, 100);
-
-      this.formatter = new DocumentFormat(
-        `${documentFormat.format.pageWidth}mm`,
-        `${documentFormat.format.pageHeight}mm`,
-        `${documentFormat.format.margemSuperior}mm`,
-        `${documentFormat.format.margemDireita}mm`,
-        `${documentFormat.format.margemInferior}mm`,
-        `${documentFormat.format.margemEsquerda}mm`,
-        `${documentFormat.format.pageWidth}mm`,
-        `${documentFormat.format.pageHeight}mm`,
-        `url(${documentFormat.background})`
-      );
-    });
+      }
+    }
   }
 
 
