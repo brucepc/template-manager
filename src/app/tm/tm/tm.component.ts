@@ -32,6 +32,20 @@ export class GapConstrains {
   customStyle?: string;
 }
 
+
+function generatePtSetting(size) {
+  return {
+    model: size,
+    title: `${size} pt`,
+    view: {
+      name: 'span',
+      styles: {
+        'font-size': `${size}pt`
+      }
+    }
+  };
+}
+
 @Component({
   selector: 'blockchain-tm',
   templateUrl: './tm.component.html',
@@ -73,6 +87,10 @@ export class TmComponent implements OnInit, AfterViewInit {
     ];
     this.currentPageType = this.papers[0];
     this.editorConfig = {
+      placeholder: 'CRIE AQUI SEU NOVO DOCUMENTO',
+      fontSize: {
+        options: Array.from({ length: 20 }, (v, k) => generatePtSetting((k + 4) * 2))
+      },
       CustomElement: {
         items: [{
           tag: 'tmGap',
@@ -89,7 +107,7 @@ export class TmComponent implements OnInit, AfterViewInit {
           editable: true
         }]
       },
-      language: 'pt-br'
+      language: 'pt-br',
     };
     this.gapNameSubject = new BehaviorSubject<any>(null);
     this.gapNameObs = this.gapNameSubject.asObservable().pipe(skip(1));
@@ -129,6 +147,8 @@ export class TmComponent implements OnInit, AfterViewInit {
   }
 
   onReady(editor: CKEditor5.Editor) {
+    console.log(editor.ui.componentFactory.names());
+
     this.render.appendChild(
       this.toolbarRef.nativeElement,
       editor.ui.view.toolbar.element

@@ -8,6 +8,30 @@ $stageWidth: var(--stage-width);
 $stageHeight: var(--stage-height);
 $backgroundURI: var(--page-background-uri);
 
+
+@mixin toolbar {
+
+    .ck-font-size-dropdown,
+    .ck-font-family-dropdown {
+
+        .ck-dropdown__panel.ck-dropdown__panel_ne,
+        .ck-dropdown__panel.ck-dropdown__panel_se {
+            max-height: 50vh;
+            overflow: auto;
+        }
+
+        .ck.ck-button {
+            .ck-icon.ck-button__icon {
+                display: none;
+            }
+
+            .ck-button__label {
+                display: inline;
+            }
+        }
+    }
+}
+
 @mixin ckeditor {
 
     ckeditor.custom-editor {

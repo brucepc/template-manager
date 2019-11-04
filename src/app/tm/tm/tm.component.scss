@@ -78,6 +78,7 @@
 
                 .toolbar {
                     height: max-content;
+                    @include toolbar();
                 }
 
                 .editor-container {
