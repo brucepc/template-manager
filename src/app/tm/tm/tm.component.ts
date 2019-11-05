@@ -20,6 +20,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { DocumentFormat } from '../document-format';
 import { TmPrintComponent } from '../tm-print/tm-print.component';
+import { TouchSequence } from 'selenium-webdriver';
+import { SafeHtml, DomSanitizer } from '@angular/platform-browser';
+import { ValueConverter } from '@angular/compiler/src/render3/view/template';
 
 
 export class PageConstrains {
@@ -33,6 +36,9 @@ export class GapConstrains {
   maxChar: number;
   customStyle?: string;
   placeholder?: string;
+  get value(): string {
+    return this.placeholder;
+  }
 }
 
 
@@ -74,7 +80,8 @@ export class TmComponent implements OnInit, AfterViewInit {
   currentPageType;
   papers: PageConstrains[];
   gapProperties: any[];
-  private background: string;
+  template: SafeHtml;
+  private _background: string;
   private gapNameSubject: BehaviorSubject<any>;
   private gapNameObs: Observable<any>;
   private formatter: DocumentFormat;
@@ -83,6 +90,7 @@ export class TmComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private render: Renderer2,
+    private sanitizer: DomSanitizer
   ) {
     /*******************************
      * AVAILABLE PAGE SIZES        *
@@ -120,6 +128,7 @@ export class TmComponent implements OnInit, AfterViewInit {
     };
     this.gapNameSubject = new BehaviorSubject<any>(null);
     this.gapNameObs = this.gapNameSubject.asObservable().pipe(skip(1));
+    // TODO Fetch data to fill gapProperties
     this.gapProperties = [
       { description: 'Name', value: 'user.name', placeholder: 'João Ribeiro Silva' },
       { description: 'Idade', value: 'user.age', placeholder: '26' },
@@ -171,18 +180,27 @@ export class TmComponent implements OnInit, AfterViewInit {
   }
 
   onChangeBg(event: any) {
-    const mediaBg = event.target.files[0];
+    const { target } = event;
+    const mediaBg = target.files[0];
+    const removerBtn = this.render.nextSibling(target);
     const reader = new FileReader();
     reader.readAsDataURL(mediaBg);
     reader.onload = () => {
       const uri = reader.result as string;
       this.background = uri;
-      this.formatter.backgroundURI = `url(${uri})`;
+      this.render.removeClass(removerBtn, 'disabled');
     };
 
     reader.onerror = e => {
       console.log(e);
     };
+  }
+
+  onRemoveBG(event) {
+    const { target } = event;
+    this.documentForm.controls.background.setValue(null);
+    this.background = null;
+    this.render.addClass(target, 'disabled');
   }
 
   onMarginChange() {
@@ -245,33 +263,47 @@ export class TmComponent implements OnInit, AfterViewInit {
   }
 
   openPreview() {
-    console.log(this.document);
     this.render.addClass(this.editorContainer.nativeElement, 'show-preview');
     this.preview.document = this.document;
-    this.preview.page = this.document;
+    this.preview.page = this.pageSettings;
     setTimeout(() => {
-      this.preview.fillGaps(this.gaps);
+      this.preview.fillGaps(
+        this.gaps.map(v => Object.assign(new GapConstrains(), v))
+      );
     }, 100);
   }
+
   closePreview() {
     this.render.removeClass(this.editorContainer.nativeElement, 'show-preview');
   }
 
   // #region Getters and Setters
+  get background(): string {
+    return this._background;
+  }
+
+  set background(v: string) {
+    this._background = v;
+    if (this._background !== null) {
+      this.formatter.backgroundURI = `url(${v})`;
+    } else {
+      this.formatter.backgroundURI = 'none';
+    }
+  }
+
   get sampleData(): any {
     return this.gaps;
   }
 
   get document(): any {
-    const { data } = this.editorData;
-    return this.editorData;
+    return btoa(this.editorData);
   }
 
   get pageSettings(): any {
     console.log(this.documentForm.value);
 
     return {
-      document: this.documentForm.value,
+      ...this.documentForm.value,
       background: this.background
     };
   }

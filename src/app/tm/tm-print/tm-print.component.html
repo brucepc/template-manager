@@ -1,1 +1,9 @@
-<div class='custom-editor' [innerHTML]="template"></div>
+<ng-template [ngIf]='template' [ngIfElse]='ngContent'>
+  <div class='custom-editor' [innerHTML]='template'></div>
+</ng-template>
+
+<ng-template #ngContent>
+  <div class="custom-editor">
+    <ng-content></ng-content>
+  </div>
+</ng-template>

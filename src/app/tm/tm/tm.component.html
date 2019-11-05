@@ -2,8 +2,8 @@
   <section class="settings">
     <h3>Configurações da pagina</h3>
     <form [formGroup]="documentForm">
+      <h5>Orientação da pagina</h5>
       <section class="orientation">
-        <h5>Orientação da pagina</h5>
         <mat-radio-group formControlName='orientation' (change)='onOrientationChange($event)'>
           <mat-radio-button value='portrait'>Retrato</mat-radio-button>
           <mat-radio-button value='landscape'>Paisagem</mat-radio-button>
@@ -54,30 +54,29 @@
         </mat-form-field>
       </section>
       <h5>Plano de fundo</h5>
-      <input id='page-background' formControlName="background" (change)='onChangeBg($event)' type="file">
+      <section class='background'>
+        <input id='page-background' formControlName="background" (change)='onChangeBg($event)' type="file">
+        <button mat-button (click)='onRemoveBG($event)' class="disabled">
+          remover
+        </button>
+      </section>
     </form>
     <section class="actions">
       <button mat-button (click)="openPreview()">Visualizar</button>
       <button mat-raised-button (click)='onSave()' color='primary'>Salvar</button>
-      <!-- <button mat-raised-button (click)='onOpenModal()' color='primary'>Adicionar Lacuna</button> -->
     </section>
   </section>
   <section #editorContainer class="editor">
     <div #toolbar class="toolbar"></div>
-    <div  class="editor-container">
+    <div class="editor-container">
       <div class="editor-background">
         <div class="preview">
           <div (click)='closePreview()' class="close">X</div>
-          <blockchain-tm-print></blockchain-tm-print>
+          <blockchain-tm-print>
+          </blockchain-tm-print>
         </div>
-
-        <ckeditor 
-        class="custom-editor" 
-        name='document' 
-        [editor]='editorBuild' 
-        [config]='editorConfig'
-        [(ngModel)]='editorData'
-        (ready)="onReady($event)">
+        <ckeditor class="custom-editor" name='document' [editor]='editorBuild' [config]='editorConfig'
+          [(ngModel)]='editorData' (ready)="onReady($event)">
         </ckeditor>
       </div>
     </div>

@@ -1,119 +1,99 @@
-import { Component, AfterViewInit, ElementRef, Input, ContentChildren } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, Input, ContentChildren, Renderer2 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DocumentFormat } from '../document-format';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { element } from 'protractor';
 
 @Component({
   selector: 'blockchain-tm-print',
   templateUrl: './tm-print.component.html',
-  styleUrls: ['./tm-print.component.scss']
+  styleUrls: ['./tm-print.component.scss'],
 })
 export class TmPrintComponent implements AfterViewInit {
-  @ContentChildren('tmgap')
-  gaps;
-  editorData: SafeHtml;
+  templateData: SafeHtml;
   formatter: DocumentFormat;
   gapTags: HTMLCollection;
   private pageSettings: any;
   private template: any;
 
   constructor(
-    private http: HttpClient,
     private sanitizer: DomSanitizer,
-    private el: ElementRef
+    private el: ElementRef,
+    private render: Renderer2
   ) {
   }
 
   @Input()
   set data(v: any) {
-    console.log('DADOOOOOS', v);
+    this.templateData = Object.assign({}, v);
+  }
 
-    this.editorData = v;
+  get data(): any {
+    return this.data;
   }
 
   @Input()
   set page(v: any) {
-    this.pageSettings = v;
+    this.pageSettings = Object.assign({}, v);
+  }
+
+  get() {
+    return this.pageSettings;
   }
 
   @Input()
   set document(v: any) {
-    this.template = this.sanitizer.bypassSecurityTrustHtml(v);
+    this.template = this.sanitizer.bypassSecurityTrustHtml(atob(v));
+  }
+
+  get document(): any {
+    return this.template;
   }
 
   ngAfterViewInit() {
-    // zip(
-    //   this.http.get<any>('/assets/document.json'), // Propriedades do documento
-    //   this.http.get<any>('/assets/sample.html'), // Documento
-    //   this.http.get<any>('/assets/data.json') // Dados para preencher o documento
-    // ).subscribe((response) => {
-    //   const { data } = response[1];
-    //   const documentFormat = response[0];
-    //   const fillData = response[2];
-    //   console.log(documentFormat);
+    this.fillGaps(this.templateData);
 
+    if (this.pageSettings) {
+      this.formatter = new DocumentFormat(
+        `${this.pageSettings.pageWidth}mm`,
+        `${this.pageSettings.pageHeight}mm`,
+        `${this.pageSettings.margemSuperior}mm`,
+        `${this.pageSettings.margemDireita}mm`,
+        `${this.pageSettings.margemInferior}mm`,
+        `${this.pageSettings.margemEsquerda}mm`,
+        `${this.pageSettings.pageWidth}mm`,
+        `${this.pageSettings.pageHeight}mm`);
 
-    //   this.editorData = this.sanitizer.bypassSecurityTrustHtml(atob(data));
-    //   setTimeout(() => {
-    //     for (const name in fillData) {
-    //       if (fillData.hasOwnProperty(name)) {
-    //         const tags = document.getElementsByName(name);
-    //         for (let gap in tags) {
-    //           if (tags.hasOwnProperty(gap)) {
-    //             this.fixGapStyle(tags[gap]);
-    //             this.setGapContent(tags[gap], fillData[name]);
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }, 100);
-    // this
-    this.fillGaps(this.editorData);
-
-    this.formatter = new DocumentFormat(
-      `${this.pageSettings.pageWidth}mm`,
-      `${this.pageSettings.pageHeight}mm`,
-      `${this.pageSettings.margemSuperior}mm`,
-      `${this.pageSettings.margemDireita}mm`,
-      `${this.pageSettings.margemInferior}mm`,
-      `${this.pageSettings.margemEsquerda}mm`,
-      `${this.pageSettings.pageWidth}mm`,
-      `${this.pageSettings.pageHeight}mm`);
-
-    if (this.pageSettings.background) {
-      this.formatter.backgroundURI = this.pageSettings.background;
-    }
-  }
-
-  fillGaps(data) {
-    console.log(data);
-    console.log(this.gaps);
-
-
-    for (const name in data) {
-      if (data.hasOwnProperty(name)) {
-        const tags = document.getElementsByName(name);
-        for (const gap in tags) {
-          if (tags.hasOwnProperty(gap)) {
-            this.fixGapStyle(tags[gap]);
-            if (data.hasOwnProperty(name)) {
-              this.setGapContent(tags[gap], data[name]);
-            } else if (data.hasOwnProperty('placeholder')) {
-              this.setGapContent(tags[gap], data.placeholder);
-            }
-          }
-        }
+      if (this.pageSettings.background) {
+        this.formatter.backgroundURI = this.pageSettings.background;
       }
     }
   }
 
+  fillGaps(data) {
+    setTimeout(() => {
+      if (typeof data[Symbol.iterator] === 'function') {
+        for (const { name, value } of data) {
+          const gaps = document.getElementsByName(name);
+          gaps.forEach(elmn => {
+            if (elmn.classList.contains('ck-editor__editable')) { return; };
+            console.log(elmn);
+            const width = elmn.offsetWidth;
+            this.render.setStyle(elmn, 'width', `${width}px`);
+            this.setGapContent(elmn, value);
+          });
+        }
+      }
+    }, 200);
+  }
 
-  fixGapStyle(gap: HTMLElement) {
+
+  fixGapStyle(gap: any) {
     const width = gap.offsetWidth;
     gap.style.width = `${width}px`;
   }
 
-  setGapContent(gap: HTMLElement, content: any) {
+  setGapContent(gap: HTMLElement | Element, content: any) {
     gap.innerHTML = content;
   }
 

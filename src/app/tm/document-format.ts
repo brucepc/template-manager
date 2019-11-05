@@ -22,8 +22,6 @@ export class DocumentFormat {
     }
 
     setStyleVar(name, value) {
-        console.log(name, value);
-
         if (value) {
             document.documentElement.style.setProperty(name, value);
         }
