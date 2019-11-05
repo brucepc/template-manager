@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "cke:build": "cd ckeditor5/build-decoupuled-document && npm run-script build",
+    "cke:build": "cd src/ckeditor5/build-decoupuled-document && npm run-script build",
     "start": "npm run-script cke:build && ng serve",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "postinstall": "cd ckeditor5/build-decoupuled-document && npm install",
+    "postinstall": "cd src/ckeditor5/build-decoupuled-document && npm install",
     "prebuild": "npm run-script cke:build"
   },
   "private": true,

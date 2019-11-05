@@ -1,6 +1,5 @@
-import { Component, AfterViewInit, ElementRef, Input } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, Input, ContentChildren } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { zip } from 'rxjs';
 import { DocumentFormat } from '../document-format';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
@@ -10,6 +9,8 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   styleUrls: ['./tm-print.component.scss']
 })
 export class TmPrintComponent implements AfterViewInit {
+  @ContentChildren('tmgap')
+  gaps;
   editorData: SafeHtml;
   formatter: DocumentFormat;
   gapTags: HTMLCollection;
@@ -86,6 +87,8 @@ export class TmPrintComponent implements AfterViewInit {
 
   fillGaps(data) {
     console.log(data);
+    console.log(this.gaps);
+
 
     for (const name in data) {
       if (data.hasOwnProperty(name)) {
