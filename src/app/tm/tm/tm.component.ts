@@ -5,7 +5,6 @@ import {
   AfterViewInit,
   ElementRef,
   Renderer2,
-  ViewChildren,
 } from '@angular/core';
 import {
   CKEditorComponent,
@@ -20,10 +19,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { DocumentFormat } from '../document-format';
 import { TmPrintComponent } from '../tm-print/tm-print.component';
-import { TouchSequence } from 'selenium-webdriver';
 import { SafeHtml, DomSanitizer } from '@angular/platform-browser';
-import { ValueConverter } from '@angular/compiler/src/render3/view/template';
-
 
 export class PageConstrains {
   label: string;
@@ -90,7 +86,6 @@ export class TmComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private render: Renderer2,
-    private sanitizer: DomSanitizer
   ) {
     /*******************************
      * AVAILABLE PAGE SIZES        *
@@ -117,11 +112,11 @@ export class TmComponent implements OnInit, AfterViewInit {
             customStyle: true,
             placeholder: ''
           },
-          onCreate: async (tagName) => {
+          onCreate: async t => {
             return await this.getGapName();
           },
           inline: true,
-          editable: true
+          editable: false
         }]
       },
       language: 'pt-br',
@@ -170,6 +165,12 @@ export class TmComponent implements OnInit, AfterViewInit {
       this.toolbarRef.nativeElement,
       editor.ui.view.toolbar.element
     );
+
+    // editor.commands.add('indentList', new IndentListCommand());
+    const plugins = Array.from(editor.ui.componentFactory.names());
+  
+    console.log('PLUGINS', plugins);
+
   }
 
   onOrientationChange() {

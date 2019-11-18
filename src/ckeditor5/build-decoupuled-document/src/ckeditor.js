@@ -17,6 +17,9 @@ import Italic from '@ckeditor/ckeditor5-basic-styles/src/italic';
 import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline';
 import BlockQuote from '@ckeditor/ckeditor5-block-quote/src/blockquote';
+import Subscript from '@ckeditor/ckeditor5-basic-styles/src/subscript';
+import Superscript from '@ckeditor/ckeditor5-basic-styles/src/superscript';
+// import Clipboard from '@ckeditor/ckeditor5-clipboard/src/clipboard';
 import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
 import EasyImage from '@ckeditor/ckeditor5-easy-image/src/easyimage';
 import Heading from '@ckeditor/ckeditor5-heading/src/heading';
@@ -36,8 +39,7 @@ import Base64UploadAdapter from '@ckeditor/ckeditor5-upload/src/adapters/base64u
 import CustomElementPlugin from './ckeditor5-custom-element/src/customelement';
 import CustomFontStylesUI from './font/font';
 
-
-export default class DecoupledEditor extends DecoupledEditorBase { }
+export default class DecoupledEditor extends DecoupledEditorBase {}
 
 // Plugins to include in the build.
 DecoupledEditor.builtinPlugins = [
@@ -52,6 +54,8 @@ DecoupledEditor.builtinPlugins = [
 	Strikethrough,
 	Underline,
 	BlockQuote,
+	Subscript,
+	Superscript,
 	CKFinder,
 	EasyImage,
 	Heading,
@@ -69,37 +73,47 @@ DecoupledEditor.builtinPlugins = [
 	TableToolbar,
 	Base64UploadAdapter,
 	CustomElementPlugin,
-	CustomFontStylesUI
+	CustomFontStylesUI,
 ];
 
 // Editor configuration.
 DecoupledEditor.defaultConfig = {
 	toolbar: {
 		items: [
+			'custom-element-tmGap',
+			'|',
+			'bold',
+			'italic',
+			'underline',
+			'strikethrough',
+			'subscript',
+			'superscript',
+			'highlight',
+			'|',
+			'alignment:left',
+			'alignment:right',
+			'alignment:center',
+			'alignment:justify',
+			'|',
+			'numberedList',
+			'bulletedList',
+			'|',
+			'link',
+			'unlink',
+			'blockquote',
+			'insertTable',
+			'|',
+			'imageUpload',
+			"imageStyle:full",
+			"imageStyle:alignLeft",
+			"imageStyle:alignRight",
+			'|',
 			'heading',
 			'|',
 			'fontfamilydropdown',
 			'fontsizedropdown',
 			'fontcolor',
 			'fontbackgroundcolor',
-			'|',
-			'bold',
-			'italic',
-			'underline',
-			'strikethrough',
-			'highlight',
-			'|',
-			'alignment',
-			'|',
-			'numberedList',
-			'bulletedList',
-			'|',
-			'link',
-			'blockquote',
-			'imageUpload',
-			'insertTable',
-			'|',
-			'custom-element-tmGap',
 			'|',
 			'undo',
 			'redo'
@@ -112,10 +126,6 @@ DecoupledEditor.defaultConfig = {
 			'alignRight'
 		],
 		toolbar: [
-			'imageStyle:alignLeft',
-			'imageStyle:full',
-			'imageStyle:alignRight',
-			'|',
 			'imageTextAlternative'
 		]
 	},
@@ -126,20 +136,9 @@ DecoupledEditor.defaultConfig = {
 			'mergeTableCells'
 		]
 	},
-	// fontColor: {
-	// 	colors: [
-	// 		// 9 colors defined here...
-	// 	]
-
-	// 	columns: 3, // so, you can display them in 3 columns.
-
-	// 	// ...
-	// },
-	// fontBackgroundColor: {
-	// 	columns: 6,
-
-	// 	// ...
-	// },
-	// This value must be kept in sync with the language defined in webpack.config.js.
+	indentBlock: {
+		offset: 1,
+		unit: 'em'
+	},
 	language: 'pt-br'
 };
